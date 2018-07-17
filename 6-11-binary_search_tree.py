@@ -10,6 +10,32 @@ class BST:
         self.root = None
         self.size = 0
 
+    def __repr__(self):
+        if self.root == None:
+            return "There is no root to this tree."
+        height = self.height()
+        width = height*9 + (2**height//2 - 1)
+        cur_height = 0
+        tree_list = [[] for i in range(height)]
+        #tree_list[cur_height].append(self.root)
+        tree_rep = self._repr(self.root, cur_height, tree_list)
+        tree_ret = ''
+        for row in tree_rep:
+            print(row)
+        tree_ret += ''.join(row) + '\n'
+        #print(tree_ret)
+        return tree_ret
+
+    def _repr(self, cur_node, cur_height, tree_list):
+        if cur_node == None:
+            pass
+        else:
+            tree_list[cur_height].append(str(cur_node.value))
+            tree_list[cur_height].append('   ')
+            self._repr(cur_node.left_child, cur_height + 1, tree_list)
+            self._repr(cur_node.right_child, cur_height + 1, tree_list)
+        return tree_list
+
     def insert(self, value):
         if self.root == None:
             self.root = Node(value)
@@ -85,19 +111,18 @@ class BST:
             return max(left_height, right_height)
 
     def search(self, search_value):
+        pass
+
 
     def _search(self, search_value, cur_node):
-        
-
-
-
-
+        pass
 
 
 tree = BST()
-tree.build_tree()
+tree.build_tree(15)
 tree.print_tree()
 tree.print_tree('preorder')
 tree.print_tree('postorder')
 print(f'Tree height: {tree.height()}')
 print(tree.size)
+print(tree)
