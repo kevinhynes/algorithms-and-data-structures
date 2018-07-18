@@ -76,8 +76,10 @@ class BST:
             return
         else:
             tree_list[cur_height][cur_index] = str(cur_node.value)
-            self._repr(cur_node.left_child, cur_height + 1, cur_index*2, tree_list, height)
-            self._repr(cur_node.right_child, cur_height + 1, cur_index*2+1, tree_list, height)
+            self._repr(cur_node.left_child, cur_height + 1, cur_index*2, 
+                        tree_list, height)
+            self._repr(cur_node.right_child, cur_height + 1, cur_index*2+1, 
+                        tree_list, height)
         return tree_list
 
     def insert(self, value):
@@ -194,8 +196,11 @@ class BST:
     
     def delete(self, node_val):
         node_to_delete = self.search(node_val)
+
+        if node_to_delete == None:
+            return "Node not found"
         
-        if node_to_delete.has_no_children():
+        elif node_to_delete.has_no_children():
             if node_to_delete.is_left_child():
                 node_to_delete.parent.left_child = None
             elif node_to_delete.is_right_child():
@@ -229,20 +234,21 @@ class BST:
             if cur_node.value == node_to_delete.value:
                 return node_list[-1]
             node_list.append(cur_node.value)
-            
             self.find_successor(node_to_delete, cur_node.right_child, node_list)
-            if cur_node.value == node_to_delete.value:
-                return node_list[-1]
-            node_list.append(cur_node.value)
             
             
 
 tree = BST()
-tree.build_tree(11, 100)
+'''
+tree.build_tree(10, 100)
 tree.print_tree()
 tree.print_tree('preorder')
 tree.print_tree('postorder')
+'''
+nodes = [30, 15, 1, 10, 22, 45, 35, 11, 41, 17, 27, 50, 55, 60, 75, 57, 5, 4, 9]
+for i in nodes:
+    tree.insert(i)
 print(f'Tree height: {tree.height()}    Total nodes: {tree.size}')
 print(tree)
-tree.delete(9)
-print(tree)
+del_node = tree.search(5)
+print(tree.find_successor(del_node, del_node, []))
