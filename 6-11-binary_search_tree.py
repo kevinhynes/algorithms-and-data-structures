@@ -56,8 +56,8 @@ class BST:
     def __repr__(self):
         if self.root == None:
             return "There is no root to this tree."
-        height = self.height()
-        leaf_nodes = 2**(height-1)      # Assume perfect binary tree to space nodes properly
+        height = self.height
+        leaf_nodes = 2**(height-1)      # Assume perfect binary tree to space nodes 
         width = (3*leaf_nodes*2) - 3    # 3 spaces per node & 3 spaces to separate nodes
         cur_height, cur_index = 0, 0
         tree_list = [['XXX' for j in range(2**i)] for i in range(height)]
@@ -144,6 +144,7 @@ class BST:
             self._print_tree_postorder(cur_node.right_child)
             print(cur_node.value)
 
+    @property
     def height(self):
         if self.root == None:
             return 0
@@ -160,7 +161,7 @@ class BST:
 
     def has_value(self, search_value):
         if self.root == None:
-            return "There is no root to this tree."
+            print("There is no root to this tree.")
         else:
             return self._search(search_value, self.root)
             
@@ -174,11 +175,11 @@ class BST:
         elif search_value > cur_node.value:
             return self._search(search_value, cur_node.right_child)
         else:
-            return "An error occurred while searching."
+            print("An error occurred while searching.")
 
     def search(self, search_value):
         if self.root == None:
-            return "There is no root to this tree."
+            print("There is no root to this tree.")
         else:
             return self._search(search_value, self.root)
             
@@ -192,7 +193,7 @@ class BST:
         elif search_value > cur_node.value:
             return self._search(search_value, cur_node.right_child)
         else:
-            return "An error occurred while searching."
+            print("An error occurred while searching.")
     
     def delete(self, node_val):
         node_to_delete = self.search(node_val)
@@ -223,32 +224,54 @@ class BST:
                     node_to_delete.parent.right_child = node_to_delete.right_child
 
         elif node_to_delete.has_two_children():
-            node_list = []
-            successor = self.find_successor(node_to_delete, node_to_delete, node_list)
-            self.delete(successor)
-            node_to_delete.value = successor
-
+            successor = self.find_successor(node_to_delete, node_to_delete, [])
+            self._delete(successor)
+            node_to_delete.value = successor.value
+                     
     def find_successor(self, node_to_delete, cur_node, node_list):
         if cur_node != None:
             self.find_successor(node_to_delete, cur_node.left_child, node_list)
             if cur_node.value == node_to_delete.value:
                 return node_list[-1]
-            node_list.append(cur_node.value)
+            node_list.append(cur_node)
             self.find_successor(node_to_delete, cur_node.right_child, node_list)
             
-            
+    def _delete(self, node_to_delete):
+        if node_to_delete.has_no_children():
+            if node_to_delete.is_left_child():
+                node_to_delete.parent.left_child = None
+            elif node_to_delete.is_right_child():
+                node_to_delete.parent.right_child = None
+
+        elif node_to_delete.has_one_child():
+            if node_to_delete.is_left_child():    
+                if node_to_delete.has_left_child():
+                    node_to_delete.left_child.parent = node_to_delete.parent
+                    node_to_delete.parent.left_child = node_to_delete.left_child
+                elif node_to_delete.has_right_child():
+                    node_to_delete.right_child.parent = node_to_delete.parent
+                    node_to_delete.parent.right_child = node_to_delete.left_child
+            elif node_to_delete.is_right_child():
+                if node_to_delete.has_left_child():
+                    node_to_delete.left_child.parent = node_to_delete.parent
+                    node_to_delete.parent.right_child = node_to_delete.left_child
+                elif node_to_delete.has_right_child():
+                    node_to_delete.right_child.parent = node_to_delete.parent
+                    node_to_delete.parent.right_child = node_to_delete.right_child
+
 
 tree = BST()
-'''
-tree.build_tree(10, 100)
-tree.print_tree()
-tree.print_tree('preorder')
-tree.print_tree('postorder')
-'''
-nodes = [30, 15, 1, 10, 22, 45, 35, 11, 41, 17, 27, 50, 55, 60, 75, 57, 5, 4, 9]
+nodes = [30, 15, 1, 10, 22, 45, 35, 11, 41, 17, 27, 50, 55, 60, 75, 57, 5, 4, 9, 38, 47,
+         33, 0, 43, 44, 42]
 for i in nodes:
     tree.insert(i)
-print(f'Tree height: {tree.height()}    Total nodes: {tree.size}')
+print(f'Tree height: {tree.height}    Total nodes: {tree.size}')
 print(tree)
-del_node = tree.search(5)
-print(tree.find_successor(del_node, del_node, []))
+
+del_node_value = 17
+del_node = tree.search(del_node_value)
+#print(f"Successor of {del_node.value}: {tree.find_successor(del_node, del_node, []).value}")
+print(f"Deleting {del_node.value}...")
+tree.delete(del_node_value)
+print(tree)
+print(tree.height)
