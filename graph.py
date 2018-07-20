@@ -1,3 +1,5 @@
+from time import sleep
+wait = 2
 class Vertex:
     def __init__(self, key):
         self.key = key
@@ -5,6 +7,8 @@ class Vertex:
         self.distance = 0
         self.predecessor = None
         self.color = 'white'
+        self.discovery = 0
+        self.finish = 0
 
     def __str__(self):
         return str(self.key) + ' is connected to ' + \
@@ -41,16 +45,22 @@ class Vertex:
     def get_color(self):
         return self.color
 
+    def set_discovery(self, time):
+        self.discovery = time
+
+    def set_finish(self, time):
+        self.finish = time
+
 class Graph:
     def __init__(self):
         self.vert_dct = {}
         self.num_vertices = 0
 
     def __iter__(self):
-        return iter(self.vert_dct.values())
+        return iter(self.vert_dct.values()) # Graph.vert_dct.values() == vertex objects
 
     def __contains__(self, v):
-        return v in self.vert_dct.keys()
+        return v in self.vert_dct.keys() # Graph.vert_dct.keys() == vertex keys (integers)
 
     def add_vertex(self, key):
         new_vertex = Vertex(key)
@@ -75,6 +85,45 @@ class Graph:
             self.add_vertex(tv)
         self.vert_dct[fv].add_neighbor(self.vert_dct[tv], weight)
 
+class DFSGraph(Graph):
+    def __init__(self):
+        super().__init__()
+        self.time = 0
+
+    def dfs(self):
+        for v in self: # calls __iter__ to iterate thru vertices
+            v.set_color('white')
+            v.set_predecessor(-1) # Why isn't this a vertex object?
+        for v in self:
+            if v.get_color() == 'white':
+                self.dfs_visit(v)
+
+    def dfs_visit(self, start_vertex):
+        start_vertex.set_color('gray')
+        self.time += 1
+        start_vertex.set_discovery(self.time)
+        print(f'Starting at {start_vertex.key}')
+        sleep(wait)
+        print(f'{self.time}')
+        sleep(wait)
+        # vertex dictionary keys == vertex objects
+        for next_vertex in start_vertex.get_connections():
+            if next_vertex.color == 'white':
+                print(f'Coming from {start_vertex.key}' + '\n' \
+                      f'Visiting {next_vertex.key}')
+                sleep(wait)
+                next_vertex.set_predecessor(start_vertex)
+                self.dfs_visit(next_vertex)
+        
+        start_vertex.set_color('black')
+        self.time += 1
+        print(f'Returning to {start_vertex.key}')
+        sleep(wait)
+        print(f'{self.time}')
+        sleep(wait)
+        start_vertex.set_finish(self.time)
+
+
 def bfs(g, start):
     #start.set_distance(0)
     #start.set_predecessor(None)
@@ -91,32 +140,26 @@ def bfs(g, start):
         cur_vertex.set_color('black')
     
 def main():
-    g = Graph()
-    for i in range(6):
-        g.add_vertex(i)
+    g = DFSGraph()
+    for c in 'abcdef':
+        g.add_vertex(c)
 
-    g.add_edge(0, 1, 5)
-    g.add_edge(0, 5, 2)
-    g.add_edge(1, 2, 4)
-    g.add_edge(2, 3, 9)
-    g.add_edge(3, 4, 7)
-    g.add_edge(4, 0, 1)
-    g.add_edge(5, 4, 8)
-    g.add_edge(5, 2, 1)
+    g.add_edge('a', 'b')
+    g.add_edge('a', 'd')
+    g.add_edge('b', 'c')
+    g.add_edge('b', 'd')
+    g.add_edge('d', 'e')
+    g.add_edge('e', 'b')
+    g.add_edge('e', 'f')
 
     for v in g:
         for c in v.get_connections():
-            #print(v.get_connections())
             print(f'{v.get_key()}, {c.get_key()}')
     for v in g:
         print(v)
 
-    my_list = []
-    for i in range(10):
-        my_list.append(i)
-    for i in range(10):
-        print(my_list.pop())
-    print(my_list)
+    g.dfs()
+
 
 main()
 
